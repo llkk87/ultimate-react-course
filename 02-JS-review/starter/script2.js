@@ -53,7 +53,7 @@ const data = [
     publicationDate: "1965-01-01",
     author: "Frank Herbert",
     genres: ["science fiction", "novel", "adventure"],
-    hasMovieAdaptation: true,
+    hasMovieAdaptation: false,
     pages: 658,
     translations: {
       spanish: "",
@@ -130,73 +130,83 @@ function getBook(id) {
   return data.find((d) => d.id === id);
 }
 
-//Destrcucturing
-const book = getBook(3);
+//functional array methods, do not mutate the original array
 
-// const title = book.title;
-// const author = book.author;
+//map
+const books = getBooks();
 
-const { title, author, pages, publicationDate, genres, hasMovieAdaptation } = book;
-console.log(author, title, genres);
+const x = [1, 2, 3, 4, 5].map((el) => el * 2);
+console.log(x);
 
-// const primaryGenre = genres[0];
-// const secondaryGenre = genres[1];
+const titles = books.map((book) => book.title);
+console.log(titles);
 
-const [primaryGenre, secondaryGenre, ...otherGenres] = genres;
-console.log(primaryGenre, secondaryGenre, otherGenres);
-
-const newGenres = ["epic fantasy", ...genres];
-console.log(newGenres);
-
-//two 'pages' in the same object, the last 'pages' will replace the first one
-//adding a new property, overwriting the exiting property
-const updatedBook = { ...book, moviePublicationDate: "2001-12-19", pages: 1210 };
-console.log(updatedBook);
-
-// function getYear(str) {
-//   return str.split("-")[0];
-// }
-const getYear = (str) => str.split("-")[0];
-console.log(getYear(publicationDate));
-
-const summary = `${title}, is a ${pages}-pages book written by ${author} and published in ${getYear(publicationDate)}`;
-console.log(summary);
-
-const pagesRange = pages > 1000 ? "over a thousand" : "less than 1000";
-console.log(`the books has ${pagesRange} pages`);
-console.log(`The book has ${hasMovieAdaptation ? "" : "not"} been adapted for a movie`);
-
-console.log(true && "some string");
-console.log(false && "some string");
-console.log(hasMovieAdaptation && "This book has a movie");
-
-//falsy: 0, '', undefinded
-console.log("jonas" && "some string");
-console.log(0, "some string");
-
-//first value is true, don't even look at the second value
-console.log(true || "some string");
-console.log(false || "some string");
-
-console.log(book.translations.spanish);
-const spanishTranslation = book.translations.spanish || "NOT TRANSLATED";
-console.log(spanishTranslation);
-
-// console.log(book.reviews.librarything.reviewsCount);
-// const countWrong = book.reviews.librarything.reviewsCount || "no data";
-// console.log(countWrong);
-
-// //0 and ''
-// const count = book.reviews.librarything.reviewsCount ?? "no data";
-// console.log(count);
-
-//optional chaining
 function getTotalReviewsCount(book) {
   const goodreads = book.reviews?.goodreads?.reviewsCount ?? 0;
   const librarything = book.reviews?.librarything?.reviewsCount ?? 0;
   console.log(goodreads, librarything);
   return goodreads + librarything;
 }
-console.log(getTotalReviewsCount(book));
 
-//functional array methods, do not mutate the original array
+// const essentialData = books.map((book) => {
+//   return {
+//     title: book.title,
+//     author: book.author,
+//   };
+// });
+
+const essentialData = books.map((book) => ({
+  title: book.title,
+  author: book.author,
+  reviewsCount: getTotalReviewsCount(book),
+}));
+console.log(essentialData);
+
+//filter
+const longBooksWithMovie = books.filter((book) => book.pages > 500).filter((book) => book.hasMovieAdaptation);
+console.log(longBooksWithMovie);
+
+//you can call a map() for array, i.e. [].map
+const adventureBooks = books.filter((books) => books.genres.includes("adventure")).map((book) => book.title);
+console.log(adventureBooks);
+
+//reduce
+//accumulator 累加器
+// const pagesAllBooks = books.reduce((accumulater, book) => accumulater + book.pages, 0);
+const pagesAllBooks = books.reduce((sum, book) => sum + book.pages, 0);
+console.log(pagesAllBooks);
+
+//not a functional method i.e. mutate the original array
+
+//sort
+//slice returns a new array
+const arr = [3, 7, 1, 9, 6];
+const sortedAscending = arr.slice().sort((a, b) => a - b);
+const sortedDescending = arr.slice().sort((a, b) => b - a);
+console.log(sortedAscending);
+console.log(sortedDescending);
+console.log(arr);
+
+//array sort by pages in ascending/descending order
+const sortByPages = books.slice().sort((a, b) => a.pages - b.pages);
+console.log(sortByPages);
+
+//immutable arrays
+
+// 1. Add book object to array
+const newBook = {
+  id: 6,
+  title: "Harry Potter and the Chamber of Secrets",
+  author: "J. K. Rowling",
+};
+const booksAfterAdd = [...books, newBook];
+console.log(booksAfterAdd);
+
+// 2. Delete book object form array
+// delete book with id3
+const booksAfterDelete = booksAfterAdd.filter((book) => book.id !== 3);
+console.log(booksAfterDelete);
+
+// 3. Update book object in the array
+const booksAfterUpdate = booksAfterDelete.map((book) => (book.id === 1 ? { ...book, pages: 123 } : book));
+console.log(booksAfterUpdate);
